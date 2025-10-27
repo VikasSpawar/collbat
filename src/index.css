@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+
+body{
+
+  @apply bg-gray-900 ;
+
+
+}
+
+/* Customize Excalidraw container and elements */
+.excalidraw {
+  @apply w-full h-full; /* makes sure it takes full space */
+  /* Add other styling like borders, shadows if needed */
+}
+
+/* Optional: Style individual Canvas or Elements */
+.excalidraw__canvas {
+  @apply border-2 border-gray-300 rounded-lg;
+}
