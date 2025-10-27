@@ -1,6 +1,6 @@
 // Remote work collaboration suite/collbat/src/features/auth/AuthContext.jsx
 import React, { createContext,  useEffect, useState } from 'react';
-import { supabase } from '../../Services/SupabaseClient';
+import { supabase } from '../../services/SupabaseClient';
 
 
 export const AuthContext = createContext();

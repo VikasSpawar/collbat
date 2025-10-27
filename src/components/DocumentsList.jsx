@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../features/auth/useAuth';
-import { supabase } from '../Services/SupabaseClient';
+import { supabase } from '../services/SupabaseClient';
 
 const BACKEND_BASE_URL = 'http://localhost:5000';
 
