@@ -3,7 +3,7 @@ import CollaborativeWhiteboard from '../features/whiteboard/components/Collabora
 import { useAuth } from '../features/auth/useAuth';
 import { AuthContext } from '../features/auth/AuthContext';
 
-const API_ENDPOINT = 'http://localhost:5000/api/whiteboards';
+const API_ENDPOINT = import.meta.env.VITE_BACKEND_BASE_URL+'/api/whiteboards'||'http://localhost:5000/api/whiteboards';
 
 const WhiteboardPage = () => {
   const { user, headers } = useAuth(AuthContext);

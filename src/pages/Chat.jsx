@@ -6,7 +6,7 @@ import { useAuth } from '../features/auth/useAuth';
 // ---------------------------------------------------------------------
 // --- CONFIGURATION ---
 // ---------------------------------------------------------------------
-const SOCKET_URL = 'http://localhost:5000'; 
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL||'http://localhost:5000'; 
 const TYPING_TIMEOUT = 1000; // Time in ms before typing status resets
 
 // Helper to generate a consistent, deterministic avatar URL

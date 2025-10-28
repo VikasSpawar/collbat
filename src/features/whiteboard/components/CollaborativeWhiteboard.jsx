@@ -7,7 +7,7 @@ import { WebsocketProvider } from "y-websocket";
 
 import { ExcalidrawBinding } from "y-excalidraw";
 
-const YJS_WS_URL = "ws://localhost:5000/yjs-ws";
+const YJS_WS_URL = import.meta.env.VITE_YJS_WS_URL;
 
 const CollaborativeWhiteboard = ({ whiteboardId, user }) => {
   const [excalidrawAPI, setExcalidrawAPI] = useState(null);

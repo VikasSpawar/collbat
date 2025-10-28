@@ -4,6 +4,8 @@ import { WebsocketProvider } from "y-websocket";
 import Quill from "quill";
 import { QuillBinding } from "y-quill";
 
+const YJS_WS_URL=import.meta.env.VITE_YJS_WS_URL
+
 import "quill/dist/quill.snow.css";
 
 export default function DocumentEditor({ roomName = "default-room" }) {
@@ -20,7 +22,7 @@ export default function DocumentEditor({ roomName = "default-room" }) {
 
     // Use y-websocket provider pointing to your backend
  providerRef.current = new WebsocketProvider(
-  "ws://localhost:5001/yjs-ws", // <- new Yjs port
+  YJS_WS_URL, // <- new Yjs port
   roomName,
   ydocRef.current
 );

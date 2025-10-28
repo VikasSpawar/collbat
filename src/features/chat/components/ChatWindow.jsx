@@ -7,7 +7,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useSocket } from '../hooks/useSocket'; 
 import { useAuth } from '../../auth/useAuth'; 
 import usePresence from '../hooks/usePresence'; 
-import { supabase } from '../../../Services/SupabaseClient'; 
+import { supabase } from '../../../services/SupabaseClient'; 
 import { Send, Users, AlertCircle } from 'lucide-react';
 
 // Message Component

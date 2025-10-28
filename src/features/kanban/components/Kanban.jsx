@@ -4,7 +4,7 @@ import { useAuth } from '../../auth/useAuth';
 import { AuthContext } from '../../auth/AuthContext';
 import SortableTask from './SortableTask';
 
-const API_ROOT = 'http://localhost:5000/api/kanban';
+const API_ROOT = `${import.meta.env.VITE_BACKEND_BASE_URL}/api/kanban`;
 
 export default function KanbanBoard() {
   const { user, headers } = useAuth(AuthContext);
