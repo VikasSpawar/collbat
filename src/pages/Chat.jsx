@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
 import { AuthContext } from '../features/auth/AuthContext';
 import { useAuth } from '../features/auth/useAuth';
+import { Excalidraw } from '@excalidraw/excalidraw';
 
 // ---------------------------------------------------------------------
 // --- CONFIGURATION ---
@@ -327,8 +328,12 @@ const Chat = ({ projectId = "demo-room-1" }) => {
                   <span className="material-symbols-outlined pt-1">send</span>
                 </button>
             </form>
+
+         
         </div>
     );
 };
 
 export default Chat;
+
+

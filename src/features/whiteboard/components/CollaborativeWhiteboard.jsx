@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Excalidraw } from "@excalidraw/excalidraw";
-import "@excalidraw/excalidraw/index.css";
+
 
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
@@ -128,6 +128,8 @@ const CollaborativeWhiteboard = ({ whiteboardId, user }) => {
           excalidrawAPI={(api) => setExcalidrawAPI(api)}
           name={`Whiteboard - ${whiteboardId}`}
         />
+
+    
       </div>
     </div>
   );
