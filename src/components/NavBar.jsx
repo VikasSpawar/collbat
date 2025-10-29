@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth/useAuth';
-import { Menu, X, Video, FileText, Layout, MessageCircle, User, LogOut } from 'lucide-react';
+import { Menu, X, Video, FileText, Layout, MessageCircle, User, LogOut, ListTodo } from 'lucide-react';
 
 // List of navigation items
 const navItems = [
+  { name: 'Projects', to: '/projects', icon: ListTodo },
   { name: 'Chat', to: '/project/proj-001/chat', icon: MessageCircle },
   { name: 'Video Call', to: '/project/proj-001/video', icon: Video },
   { name: 'Documents', to: '/project/proj-001/documents', icon: FileText },
@@ -14,7 +15,9 @@ const navItems = [
 export default function NavBar() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location=useLocation()
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
 
   // Handling logout
   const handleLogout = async () => {
@@ -31,12 +34,14 @@ export default function NavBar() {
   const handleNavLinkClick = () => setIsMenuOpen(false);
 
   // NavLink helper for reusability
-  const NavLink = ({ to, name, icon: Icon, onClick }) => (
+  const NavLink = ({ to, name, icon: Icon, onClick , active }) => (
     <Link 
       to={to} 
       onClick={onClick || handleNavLinkClick} 
-      className="flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors duration-200 
-                 text-teal-300 hover:bg-teal-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-teal-600"
+      className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors duration-200 
+                 text-teal-300 hover:bg-teal-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-teal-600
+                 ${active&&'bg-teal-700'}
+                 `}
     >
       <Icon className="w-5 h-5" />
       <span>{name}</span>
@@ -52,7 +57,7 @@ export default function NavBar() {
             <Link to="/chat" className="text-2xl font-extrabold text-teal-400 tracking-wider rounded transition-all">
               {/* RemoteCollab 🚀 */}
                 {/* <p className='border mono italic'>COLLBAT</p> */}
-<p className=" relative font-mono italic uppercase tracking-wide    inline-block overflow-hidden select-none">
+<p className=" relative font-mono italic uppercase tracking-wide  border-2 border-teal-500 shadow-md shadow-teal-400 rounded-lg px-2 mx-2  inline-block overflow-hidden select-none">
   <span className="relative text-black text-4xl z-10 glass-text shine-text">
     COLLBAT
   </span>
@@ -108,9 +113,9 @@ export default function NavBar() {
               {/* Desktop Menu */}
               <div className="hidden lg:flex lg:items-center lg:space-x-4">
                 {navItems.map((item) => (
-                  <NavLink key={item.to} {...item} />
+                  <NavLink active={location.pathname.endsWith(item.to)} key={item.to} {...item} />
                 ))}
-                <NavLink to="/profile" name="Profile" icon={User} />
+                <NavLink active={location.pathname.endsWith('/profile')} to="/profile" name="Profile" icon={User} />
                 <button
                   onClick={handleLogout}
                   className="flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold text-white 
@@ -152,9 +157,9 @@ export default function NavBar() {
         {user && (
           <div className="px-4 pt-2 pb-3 space-y-2 border-t border-gray-800">
             {navItems.map((item) => (
-              <NavLink key={item.to} {...item} />
+              <NavLink active={location.pathname.endsWith(item.to)} key={item.to} {...item} />
             ))}
-            <NavLink to="/profile" name="Profile" icon={User} />
+            <NavLink active={location.pathname.endsWith('/profile')} to="/profile" name="Profile" icon={User} />
             <button
               onClick={handleLogout}
               className="w-full flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold text-white 

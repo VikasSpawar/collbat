@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
 import { AuthContext } from '../features/auth/AuthContext';
 import { useAuth } from '../features/auth/useAuth';
-import { Excalidraw } from '@excalidraw/excalidraw';
+import { useParams } from 'react-router-dom';
 
 // ---------------------------------------------------------------------
 // --- CONFIGURATION ---
@@ -334,6 +334,126 @@ const Chat = ({ projectId = "demo-room-1" }) => {
     );
 };
 
-export default Chat;
+// export default Chat;
 
+
+
+
+
+
+const DEMO_ROOM = 'demo-room-1';
+
+export default function ChatRoomPage() {
+  // Grab the roomId param from URL if available; else fallback to DEMO_ROOM
+  const params = useParams ? useParams() : {};
+  const initialRoomId = params.projectId || DEMO_ROOM;
+
+
+  const [roomId, setRoomId] = useState(initialRoomId);
+  const [roomInput, setRoomInput] = useState(initialRoomId);
+  const [joined, setJoined] = useState(false); // Default to joined if there's a roomId param
+
+  // Leave room logic: unset roomId and display the join/create UI
+  const handleLeaveRoom = () => {
+    setJoined(false);
+    setRoomId('');
+    setRoomInput('');
+  };
+
+  const handleJoinRoom = e => {
+    e.preventDefault();
+    const target = (roomInput || '').trim();
+    if (!target) return;
+    setRoomId(target);
+    setJoined(true);
+  };
+
+  const handleCreateRoom = () => {
+    // quick room id generation (time-based, simple UX)
+    const newId = 'room-' + Math.random().toString(36).slice(2, 10);
+    setRoomId(newId);
+    setJoined(true);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-2 bg-gray-900">
+      {!joined ? (
+        <div className="w-full max-w-md p-8 bg-gray-900 border-2 border-teal-700 rounded-2xl shadow-2xl flex flex-col items-center animate-fadeIn">
+          <h2 className="text-3xl font-extrabold text-teal-400 mb-6 flex items-center space-x-2">
+            <span className="material-symbols-outlined">chat</span>
+            <span>Join a Chat Room</span>
+          </h2>
+
+          <div className=' flex mb-8 text-gray-400 '>
+               <p className="flex select-all text-lg  ">
+          <span className="  px-2 my-auto  rounded truncate inline-block max-w-full"> Current Room ID:{' '}</span>
+         
+        </p>
+          <span className="font-mono   bg-gray-800 px-2  my-auto rounded truncate inline-block max-w-full">
+            {initialRoomId}
+          </span>
+          </div>
+        
+          <form onSubmit={handleJoinRoom} className="w-full flex flex-col items-center">
+            <input
+              value={roomInput}
+              onChange={e => setRoomInput(e.target.value)}
+              placeholder="Room ID"
+              className="px-4 py-3 mb-4 w-full rounded-xl border border-gray-700 text-gray-100 placeholder-gray-500 bg-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-600 transition"
+            />
+            <button
+              type="submit"
+              className="w-full mb-3 py-3 rounded-xl bg-teal-600 text-white font-bold hover:bg-teal-500 transition shadow"
+              disabled={!roomInput.trim()}
+            >
+              Join Room
+            </button>
+        
+          </form>
+
+          <div className="flex items-center w-full py-2">
+            <div className="flex-grow h-px bg-gray-700"></div>
+            <span className="mx-4 text-gray-400 font-semibold select-none">OR</span>
+            <div className="flex-grow h-px bg-gray-700"></div>
+          </div>
+
+          <button
+            onClick={handleCreateRoom}
+            className="w-full py-3 rounded-xl border border-teal-600 text-teal-400 font-semibold hover:bg-teal-700 hover:text-white transition shadow-inner"
+          >
+            Create New Room
+          </button>
+        </div>
+      ) : (
+        <div className="w-full max-w-2xl animate-fadeIn">
+          <div className="flex justify-between items-center mb-2">
+            <div className="text-lg font-bold text-teal-400 tracking-wide">
+              Room: <span className="font-mono bg-gray-800 px-2 py-1 rounded">{roomId}</span>
+            </div>
+            <button
+              onClick={handleLeaveRoom}
+              className="flex items-center px-4 py-2 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors shadow"
+              title="Leave Room"
+            >
+              <span className="material-symbols-outlined mr-1">logout</span>
+              Leave
+            </button>
+          </div>
+          <Chat projectId={roomId} />
+        </div>
+      )}
+
+      {/* Minimal fadeIn animation for first appearance */}
+      <style>{`
+        .animate-fadeIn {
+          animation: fadeIn 0.8s cubic-bezier(.42,0,.58,1) both;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(32px) scale(0.98);}
+          to   { opacity: 1; transform: translateY(0) scale(1);}
+        }
+      `}</style>
+    </div>
+  );
+}
 

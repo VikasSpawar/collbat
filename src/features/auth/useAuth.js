@@ -12,6 +12,7 @@ export function useAuth() {
   }
 
   // Return existing context with added getToken helper
+
   return {
     ...context,
     getToken,
