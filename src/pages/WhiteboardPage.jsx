@@ -18,114 +18,116 @@ const WhiteboardPage = () => {
   const [action, setAction] = useState({ loading: false, error: null });
 
 const fetchBoards = async () => {
-  // 1. Start loading state
   setLoading(true);
 
   try {
-    // 2. Await the network request
     const res = await fetch(API_ENDPOINT, { headers });
    
-    // 3. Handle non-OK HTTP status codes
     if (!res.ok) {
-      console.log(`HTTP Status: ${res.status}`);
-      // FIX: If the response is not OK, we must AVOID calling res.json()
-      // Instead, we throw an error with the status, or maybe the body as text.
-      const errorText = await res.text(); // Await the body as text
-      throw new Error(`Failed to fetch whiteboards (Status: ${res.status}). Server response: ${errorText.substring(0, 100)}...`);
+        // 1. Read the non-JSON body as text
+        const errorText = await res.text();
+        // 2. Throw a precise error before attempting res.json()
+        throw new Error(`Failed to fetch whiteboards (Status: ${res.status}). Server response starts with: ${errorText.substring(0, 50)}...`);
     }
 
-    // Console logging the response object (can be removed in production)
-    // console.log(res);
+    // Only proceed to parse JSON if res.ok is true
+    const data = await res.json(); 
 
-    // 4. Await JSON parsing (This is only executed if res.ok is true)
-    const data = await res.json();
-
-    // 5. Success state updates
     setWhiteboards(data || []);
 
-    // Select the first board if none is selected
     if (!selectedWhiteboardId && data.length > 0) {
       setSelectedWhiteboardId(data[0].id);
     }
 
   } catch (err) {
-    // 6. Handle any errors (network, non-ok status, or JSON parsing failure)
     setError(err.message);
     console.error('Fetch error:', err);
 
   } finally {
-    // 7. Reset loading state, regardless of success or failure
     setLoading(false);
   }
 };
 
   useEffect(() => { fetchBoards(); }, []);
 
-  const handleCreate = (e) => {
-    e.preventDefault();
-    if (!newName.trim()) return;
-    setAction({ loading: true, error: null });
-    fetch(API_ENDPOINT, {
-      method: 'POST',
-      headers: { ...headers, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: newName.trim(), project_id: '5e02875e-4d83-4d0f-bacc-a1679990895f' }),
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Unable to create whiteboard');
-        return res.json();
-      })
-      .then(newBoard => {
-        setWhiteboards(prev => [newBoard, ...prev]);
-        setSelectedWhiteboardId(newBoard.id);
-        setNewName('');
-        setCreating(false);
-        setAction({ loading: false, error: null });
-      })
-      .catch(err => {
-        setAction({ loading: false, error: err.message });
-      });
-  };
+const handleCreate = (e) => {
+    e.preventDefault();
+    if (!newName.trim()) return;
+    setAction({ loading: true, error: null });
+    fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: newName.trim(), project_id: '5e02875e-4d83-4d0f-bacc-a1679990895f' }),
+    })
+      .then(async res => { // Made this function async to use await inside
+        if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(`Unable to create whiteboard (Status: ${res.status}). Server response starts with: ${errorText.substring(0, 50)}...`);
+        }
+        return res.json();
+      })
+      .then(newBoard => {
+        setWhiteboards(prev => [newBoard, ...prev]);
+        setSelectedWhiteboardId(newBoard.id);
+        setNewName('');
+        setCreating(false);
+        setAction({ loading: false, error: null });
+      })
+      .catch(err => {
+        setAction({ loading: false, error: err.message });
+      });
+  };
 
-  const handleDelete = (id) => {
-    if (!window.confirm('Delete this whiteboard? This cannot be undone.')) return;
-    setAction({ loading: true, error: null });
-    fetch(`${API_ENDPOINT}/${id}`, {
-      method: 'DELETE',
-      headers,
-    }).then(() => {
-      setWhiteboards(wbs => wbs.filter(wb => wb.id !== id));
-      if (selectedWhiteboardId === id && whiteboards.length > 1) {
-        setSelectedWhiteboardId(whiteboards.find(wb => wb.id !== id).id);
-      } else if (whiteboards.length <= 1) {
-        setSelectedWhiteboardId(null);
-      }
-      setAction({ loading: false, error: null });
-    }).catch(err => {
-      setAction({ loading: false, error: err.message });
-    });
-  };
+// --- FIX APPLIED HERE: handleDelete ---
+  const handleDelete = (id) => {
+    if (!window.confirm('Delete this whiteboard? This cannot be undone.')) return;
+    setAction({ loading: true, error: null });
+    fetch(`${API_ENDPOINT}/${id}`, {
+      method: 'DELETE',
+      headers,
+    }).then(async res => { // Made this function async to use await inside
+        if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(`Unable to delete whiteboard (Status: ${res.status}). Server response starts with: ${errorText.substring(0, 50)}...`);
+        }
+      setWhiteboards(wbs => wbs.filter(wb => wb.id !== id));
+      if (selectedWhiteboardId === id && whiteboards.length > 1) {
+        setSelectedWhiteboardId(whiteboards.find(wb => wb.id !== id).id);
+      } else if (whiteboards.length <= 1) {
+        setSelectedWhiteboardId(null);
+      }
+      setAction({ loading: false, error: null });
+    }).catch(err => {
+      setAction({ loading: false, error: err.message });
+    });
+  };
 
-  const handleRename = (id) => {
-    if (!renameValue.trim()) return;
-    setAction({ loading: true, error: null });
-    fetch(`${API_ENDPOINT}/${id}`, {
-      method: 'PATCH',
-      headers: { ...headers, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: renameValue.trim() }),
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Rename failed');
-        setWhiteboards(ws => ws.map(wb =>
-          wb.id === id ? { ...wb, name: renameValue.trim() } : wb
-        ));
-        setRenamingId(null);
-        setRenameValue('');
-        setAction({ loading: false, error: null });
-      })
-      .catch(err => {
-        setAction({ loading: false, error: err.message });
-      });
-  };
+// --- FIX APPLIED HERE: handleRename ---
+  const handleRename = (id) => {
+    if (!renameValue.trim()) return;
+    setAction({ loading: true, error: null });
+    fetch(`${API_ENDPOINT}/${id}`, {
+      method: 'PATCH',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: renameValue.trim() }),
+    })
+      .then(async res => { // Made this function async to use await inside
+        if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(`Rename failed (Status: ${res.status}). Server response starts with: ${errorText.substring(0, 50)}...`);
+        }
+        // We don't need the JSON response body here, but if we did, we'd call res.json()
+        setWhiteboards(ws => ws.map(wb =>
+          wb.id === id ? { ...wb, name: renameValue.trim() } : wb
+        ));
+        setRenamingId(null);
+        setRenameValue('');
+        setAction({ loading: false, error: null });
+      })
+      .catch(err => {
+        setAction({ loading: false, error: err.message });
+      });
+  };
 
   return (
     <div className="flex h-screen bg-gray-900 font-sans text-gray-100">
