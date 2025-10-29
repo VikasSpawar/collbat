@@ -18,40 +18,45 @@ const WhiteboardPage = () => {
   const [action, setAction] = useState({ loading: false, error: null });
 
 const fetchBoards = async () => {
-  // 1. Start loading state
-  setLoading(true);
+  // 1. Start loading state
+  setLoading(true);
 
-  try {
-    // 2. Await the network request
-    const res = await fetch(API_ENDPOINT, { headers });
-   
-    // 3. Handle non-OK HTTP status codes
-    if (!res.ok) {
-      throw new Error(`Failed to fetch whiteboards (Status: ${res.status})`);
-    }
+  try {
+    // 2. Await the network request
+    const res = await fetch(API_ENDPOINT, { headers });
+   
+    // 3. Handle non-OK HTTP status codes
+    if (!res.ok) {
+      console.log(`HTTP Status: ${res.status}`);
+      // FIX: If the response is not OK, we must AVOID calling res.json()
+      // Instead, we throw an error with the status, or maybe the body as text.
+      const errorText = await res.text(); // Await the body as text
+      throw new Error(`Failed to fetch whiteboards (Status: ${res.status}). Server response: ${errorText.substring(0, 100)}...`);
+    }
 
-    // Console logging the response object (can be removed in production)
-    // console.log(res);
+    // Console logging the response object (can be removed in production)
+    // console.log(res);
 
-    // 4. Await JSON parsing
-    const data = await res.json();
+    // 4. Await JSON parsing (This is only executed if res.ok is true)
+    const data = await res.json();
 
-    // 5. Success state updates
-    setWhiteboards(data || []);
+    // 5. Success state updates
+    setWhiteboards(data || []);
 
-    // Select the first board if none is selected
-    if (!selectedWhiteboardId && data.length > 0) {
-      setSelectedWhiteboardId(data[0].id);
-    }
+    // Select the first board if none is selected
+    if (!selectedWhiteboardId && data.length > 0) {
+      setSelectedWhiteboardId(data[0].id);
+    }
 
-  } catch (err) {
-    // 6. Handle any errors (network, non-ok status, or JSON parsing failure)
-    setError(err.message);
+  } catch (err) {
+    // 6. Handle any errors (network, non-ok status, or JSON parsing failure)
+    setError(err.message);
+    console.error('Fetch error:', err);
 
-  } finally {
-    // 7. Reset loading state, regardless of success or failure
-    setLoading(false);
-  }
+  } finally {
+    // 7. Reset loading state, regardless of success or failure
+    setLoading(false);
+  }
 };
 
   useEffect(() => { fetchBoards(); }, []);
